@@ -44,39 +44,55 @@ public class Insert extends AnAction {
         final Editor editor = e.getData(PlatformDataKeys.EDITOR);
         assert editor != null;
 
-        final int replaceFrom = editor.getCaretModel().getOffset();
+
         final ContentManager contentManager = new ContentManager();
         final SyntaxManager syntaxManager = new SyntaxManager(contentManager);
-        TemplateManager templateManager = TemplateManager.getInstance(myProject);
 
-        templateManager.startTemplate(editor, template, new TemplateEditingListener() {
-            public void beforeTemplateFinished(TemplateState state, Template template) {
+        if (!editor.getSelectionModel().hasSelection()) {
+            final int replaceFrom = editor.getCaretModel().getOffset();
+            TemplateManager templateManager = TemplateManager.getInstance(myProject);
 
-            }
+            templateManager.startTemplate(editor, template, new TemplateEditingListener() {
+                public void beforeTemplateFinished(TemplateState state, Template template) {
 
-            public void templateFinished(Template template, boolean brokenOff) {
-                int replaceTo = editor.getCaretModel().getOffset();
-                TextRange textRange = new TextRange(replaceFrom, replaceTo);
-                String myString = editor.getDocument().getText(textRange);
-                System.out.println(myString);
-                try {
-                    SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
-                    contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
-                } catch (Exception e1) {
-                    e1.printStackTrace();
                 }
+
+                public void templateFinished(Template template, boolean brokenOff) {
+                    int replaceTo = editor.getCaretModel().getOffset();
+                    TextRange textRange = new TextRange(replaceFrom, replaceTo);
+                    String myString = editor.getDocument().getText(textRange);
+                    System.out.println(myString);
+                    try {
+                        SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
+                        contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+                    } catch (Exception e1) {
+                        e1.printStackTrace();
+                    }
 //                editor.getDocument().replaceString(replaceFrom, replaceTo, parsedString.toString());
-                System.out.println("TEMPLATE FINISHED");
-            }
+                    System.out.println("TEMPLATE FINISHED");
+                }
 
-            public void templateCancelled(Template template) {
-            }
+                public void templateCancelled(Template template) {
+                }
 
-            public void currentVariableChanged(TemplateState templateState, Template template, int oldIndex, int newIndex) {
-            }
+                public void currentVariableChanged(TemplateState templateState, Template template, int oldIndex, int newIndex) {
+                }
 
-            public void waitingForInput(Template template) {
+                public void waitingForInput(Template template) {
+                }
+            });
+        } else {
+            int replaceFrom = editor.getSelectionModel().getSelectionStart();
+            int replaceTo = editor.getSelectionModel().getSelectionEnd();
+            TextRange textRange = new TextRange(replaceFrom, replaceTo);
+            String myString = editor.getDocument().getText(textRange);
+            System.out.println(myString);
+            try {
+                SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
+                contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+            } catch (Exception e1) {
+                e1.printStackTrace();
             }
-        });
+        }
     }
 }
