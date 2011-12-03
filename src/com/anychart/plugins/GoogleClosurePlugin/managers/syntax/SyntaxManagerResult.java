@@ -31,7 +31,7 @@ public class SyntaxManagerResult {
 
     private String replaceString;
 
-    public String setReplaceString() {
+    public String getReplaceString() {
         return replaceString;
     }
 

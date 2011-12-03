@@ -59,8 +59,12 @@ public class Insert extends AnAction {
                 TextRange textRange = new TextRange(replaceFrom, replaceTo);
                 String myString = editor.getDocument().getText(textRange);
                 System.out.println(myString);
-                SyntaxManagerResult parsedString = syntaxManager.parseInput(myString);
-                contentManager.insertString(editor.getDocument(), "chidori", replaceFrom, replaceTo);
+                try {
+                    SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
+                    contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
 //                editor.getDocument().replaceString(replaceFrom, replaceTo, parsedString.toString());
                 System.out.println("TEMPLATE FINISHED");
             }
