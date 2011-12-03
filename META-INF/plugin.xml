@@ -7,6 +7,9 @@
 
   <application-components>
     <!-- Add your application components here -->
+      <component>
+          <implementation-class>com.anychart.plugins.GoogleClosurePlugin.MyComponent</implementation-class>
+      </component>
   </application-components>
 
   <project-components>
@@ -15,6 +18,11 @@
 
   <actions>
     <!-- Add your actions here -->
+      <action id="GoogleClosurePlugin.actions.Insert"
+              class="com.anychart.plugins.GoogleClosurePlugin.applicationActions.Insert" text="Insert">
+          <add-to-group group-id="ToolsMenu" anchor="last"/>
+          <keyboard-shortcut keymap="$default" first-keystroke="alt W" />
+      </action>
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
