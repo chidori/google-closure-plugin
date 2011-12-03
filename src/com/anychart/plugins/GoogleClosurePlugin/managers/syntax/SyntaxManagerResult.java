@@ -12,10 +12,19 @@ import java.util.List;
  * Time: 1:40
  */
 public class SyntaxManagerResult {
-    public SyntaxManagerResult() {}
+    public SyntaxManagerResult() {
+    }
 
     public SyntaxManagerResult(String[] requires, String replaceString) {
         this.requires = requires;
+        this.replaceString = replaceString;
+    }
+
+    public SyntaxManagerResult(Object[] requires, String replaceString) {
+        this.requires = new String[requires.length];
+        for (int i = 0; i < requires.length; i++) {
+            this.requires[i] = (String) requires[i];
+        }
         this.replaceString = replaceString;
     }
 

@@ -26,17 +26,18 @@ public class ContentManager {
         String namespace;
 
         int googProvideOffset = text.indexOf("goog.provide(", 0);
-        if (googProvideOffset != 0) {
-            namespace = text.substring(googProvideOffset, text.lastIndexOf(")", googProvideOffset) - 1);
+        if (googProvideOffset != -1) {
+            namespace = text.substring(googProvideOffset + "goog.provide(".length() + 1, text.indexOf(")", googProvideOffset) - 1);
         } else {
             String filePath = file.getPath();
             String fileName = file.getName();
             namespace = filePath.substring(
-                    filePath.indexOf("src/") + 4, filePath.indexOf(fileName) - 1
+                    filePath.indexOf("src/") + 4, filePath.indexOf(fileName)
             ).replaceAll("\\/", ".");
 
             String cmp2 = fileName.substring(0, fileName.lastIndexOf("."));
-            String cmp1 = namespace.substring(namespace.lastIndexOf(".", namespace.length() - 1));
+            int tmp = namespace.lastIndexOf(".", namespace.length());
+            String cmp1 = tmp > 0 ? namespace.substring(tmp) : "";
             if (cmp1.equals(cmp2)) {
                 namespace += "." + cmp2;
             }
@@ -51,7 +52,7 @@ public class ContentManager {
 
         int offset = editor.getCaretModel().getOffset();
         int lineNumber = editor.getDocument().getLineNumber(offset);
-        Pattern p = Pattern.compile("^((([a-z][a-zA-Z_]+)\\.)+[A-Z][a-zA-Z]+)[ ]+=[ ]+function");
+        Pattern p = Pattern.compile("^((([a-z][a-zA-Z_]+)\\.)+[A-Z][a-zA-Z]+)[ ]*=[ ]*function");
 
         while (lineNumber != -1) {
             int lineStartOffset = editor.getDocument().getLineStartOffset(lineNumber);
@@ -61,10 +62,10 @@ public class ContentManager {
 
             Matcher m = p.matcher(stringLine);
 
-            if (!m.matches()) {
+            if (!m.find()) {
                 lineNumber -= 1;
             } else {
-                className = m.group(3);
+                className = m.group(1);
                 return className;
             }
         }

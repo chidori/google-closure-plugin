@@ -30,14 +30,14 @@ public class SyntaxManager {
         if (isPrivate || isProtected || firstDivision[0].equalsIgnoreCase("public")) {
             if (firstDivision.length == 1)
                 throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
-            firstDivision = firstDivision[1].split("  ", 2);
+            firstDivision = firstDivision[1].split(" ", 2);
             firstDivision[0] = firstDivision[0].trim();
         }
         isStatic = firstDivision[0].equalsIgnoreCase("static");
         if (isStatic) {
             if (firstDivision.length == 1)
                 throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
-            firstDivision = firstDivision[1].split("  ", 2);
+            firstDivision = firstDivision[1].split(" ", 2);
             firstDivision[0] = firstDivision[0].trim();
         }
         if (firstDivision[0].equalsIgnoreCase("class")) {
@@ -106,6 +106,7 @@ public class SyntaxManager {
                 result.append("}\n");
                 requires.add(getClassNameSpace(anInterface));
             }
+        result.append(" */\n");
         result.append(contentManager.getNamespace(editor));
         result.append(".");
         result.append(className);
@@ -117,7 +118,7 @@ public class SyntaxManager {
             result.append(ancestor);
             result.append(");\n");
         }
-        return new SyntaxManagerResult((String[])requires.toArray(), result.toString());
+        return new SyntaxManagerResult(requires.toArray(), result.toString());
     }
 
     private SyntaxManagerResult parseInterface(String[] firstDivision, Editor editor) throws Exception {
@@ -158,7 +159,7 @@ public class SyntaxManager {
         result.append(".");
         result.append(interfaceName);
         result.append(" = function() {}\n");
-        return new SyntaxManagerResult((String[])requires.toArray(), result.toString());
+        return new SyntaxManagerResult(requires.toArray(), result.toString());
     }
 
     private SyntaxManagerResult parseFunction(String[] firstDivision, Editor editor) throws Exception {
@@ -173,13 +174,13 @@ public class SyntaxManager {
             throw new Exception("Bad input string: parentheses expected");
 
         components = components[1].split(",");
-        for (int i = 0; i < components.length - 1; i++){
+        for (int i = 0; i < components.length - 1; i++) {
             String[] tmp = components[i].split(":", 2);
             paramNames.add(tmp[0].trim());
             paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
         }
         components = components[components.length - 1].split("\\)", 2);
-        if (components[0].trim().length() > 0){
+        if (components[0].trim().length() > 0) {
             String[] tmp = components[0].split(":", 2);
             paramNames.add(tmp[0].trim());
             paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
