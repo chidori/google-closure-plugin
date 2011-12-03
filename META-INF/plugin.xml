@@ -18,6 +18,11 @@
   </actions>
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
+
+      <defaultLiveTemplatesProvider implementation="com.anychart.plugins.GoogleClosurePlugin.templates.GoogProvider" />
+      <liveTemplateContext implementation="com.anychart.plugins.GoogleClosurePlugin.templates.GoogContextType" />
+
+      <liveTemplateMacro implementation="com.anychart.plugins.GoogleClosurePlugin.templates.macro.GoogCurrentNamespace" />
+
   </extensions>
 </idea-plugin>
