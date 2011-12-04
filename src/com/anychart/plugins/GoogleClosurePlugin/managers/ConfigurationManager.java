@@ -4,7 +4,7 @@ import com.anychart.plugins.GoogleClosurePlugin.configuration.Configuration;
 import com.intellij.openapi.roots.ui.configuration.projectRoot.HistoryAware;
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.StaxDriver;
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -20,16 +20,16 @@ public class ConfigurationManager {
     private Configuration configuration;
 
     public ConfigurationManager(){
-        XStream xStream = new XStream(new StaxDriver());
-        initAliases(xStream);
-        InputStream stream = null;
-        try {
-            configuration = (Configuration) xStream.fromXML(getStream());
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        } finally {
-            IOUtils.closeQuietly(stream);
-        }
+//        XStream xStream = new XStream(new StaxDriver());
+//        initAliases(xStream);
+//        InputStream stream = null;
+//        try {
+//            configuration = (Configuration) xStream.fromXML(getStream());
+//        } catch (Exception e) {
+//            throw new IllegalStateException(e);
+//        } finally {
+//            IOUtils.closeQuietly(stream);
+//        }
 
     }
 

@@ -7,9 +7,9 @@
 
   <application-components>
     <!-- Add your application components here -->
-      <component>
-          <implementation-class>com.anychart.plugins.GoogleClosurePlugin.MyComponent</implementation-class>
-      </component>
+      <!--<component>-->
+          <!--<implementation-class>com.anychart.plugins.GoogleClosurePlugin.MyComponent</implementation-class>-->
+      <!--</component>-->
   </application-components>
 
   <project-components>

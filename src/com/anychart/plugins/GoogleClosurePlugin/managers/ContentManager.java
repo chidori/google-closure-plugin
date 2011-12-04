@@ -21,7 +21,6 @@ public class ContentManager {
 
     public String getNamespace(Editor editor) {
         VirtualFile file = FileDocumentManager.getInstance().getFile(editor.getDocument());
-
         String text = editor.getDocument().getText();
         String namespace;
 
@@ -31,15 +30,23 @@ public class ContentManager {
         } else {
             String filePath = file.getPath();
             String fileName = file.getName();
+            int srcIndex = filePath.indexOf("src/") + 4;
+            int fileNameIndex = filePath.indexOf(fileName);
+            if (srcIndex == fileNameIndex) return fileName.substring(0, fileName.lastIndexOf("."));
             namespace = filePath.substring(
-                    filePath.indexOf("src/") + 4, filePath.indexOf(fileName)
+                    srcIndex, fileNameIndex - 1
             ).replaceAll("\\/", ".");
 
+            String cmp1;
             String cmp2 = fileName.substring(0, fileName.lastIndexOf("."));
             int tmp = namespace.lastIndexOf(".", namespace.length());
-            String cmp1 = tmp > 0 ? namespace.substring(tmp + 1) : "";
+            cmp1 = tmp > 0 ? namespace.substring(tmp + 1) : "";
+
+            if (tmp == -1) {
+                cmp1 = namespace;
+            }
             if (!cmp1.equals(cmp2)) {
-                namespace += "." + cmp1;
+                namespace += "." + cmp2;
             }
         }
 
