@@ -8,15 +8,15 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Author: Anton Kagakin kagakinam@gmail.com
  * Date: 04.12.11
- * Time: 1:57
+ * Time: 7:02
  */
-public class GoogCurrentNamespace implements Macro {
+public class GoogCurrentClass implements Macro {
     public String getName() {
-        return "googCurrentNamespace";
+        return "googCurrentClass";
     }
 
     public String getDescription() {
-        return "googCurrentNamespace()";
+        return "googCurrentClass()";
     }
 
     public String getDefaultValue() {
@@ -25,9 +25,9 @@ public class GoogCurrentNamespace implements Macro {
 
     public Result calculateResult(@NotNull Expression[] params, ExpressionContext context) {
         ContentManager contentManager = new ContentManager();
-        String namespace = contentManager.getNamespace(context.getEditor());
+        String className = contentManager.getClassName(context.getEditor());
 //        int offset = context.getEditor().getCaretModel().getOffset();
-        return new TextResult(namespace);
+        return new TextResult(className);
     }
 
     public Result calculateQuickResult(@NotNull Expression[] params, ExpressionContext context) {

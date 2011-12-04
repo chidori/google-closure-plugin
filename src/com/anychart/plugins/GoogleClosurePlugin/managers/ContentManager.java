@@ -37,9 +37,9 @@ public class ContentManager {
 
             String cmp2 = fileName.substring(0, fileName.lastIndexOf("."));
             int tmp = namespace.lastIndexOf(".", namespace.length());
-            String cmp1 = tmp > 0 ? namespace.substring(tmp) : "";
-            if (cmp1.equals(cmp2)) {
-                namespace += "." + cmp2;
+            String cmp1 = tmp > 0 ? namespace.substring(tmp + 1) : "";
+            if (!cmp1.equals(cmp2)) {
+                namespace += "." + cmp1;
             }
         }
 
