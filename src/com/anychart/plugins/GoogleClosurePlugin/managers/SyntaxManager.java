@@ -57,6 +57,8 @@ public class SyntaxManager {
             throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
         String[] components = firstDivision[1].split(" ", 2);
         String className = components[0].trim();
+        if (isPrivate && className.charAt(className.length() - 1) != '_')
+            className += '_';
         String ancestor = null;
         String[] interfaces = null;
         if (components.length > 1) {
@@ -107,16 +109,23 @@ public class SyntaxManager {
                 requires.add(getClassNameSpace(anInterface));
             }
         result.append(" */\n");
-        result.append(contentManager.getNamespace(editor));
+        String namespace = contentManager.getNamespace(editor);
+        result.append(namespace);
         result.append(".");
         result.append(className);
-        result.append(" = function() {}\n");
         if (ancestor != null) {
-            result.append("goog.inherits(\"");
+            result.append(" = function() {\n\t");
+            result.append(ancestor);
+            result.append(".call(this);\n};\n");
+            result.append("goog.inherits(");
+            result.append(namespace);
+            result.append(".");
             result.append(className);
             result.append(", ");
             result.append(ancestor);
             result.append(");\n");
+        } else {
+            result.append(" = function() {};");
         }
         return new SyntaxManagerResult(requires.toArray(), result.toString());
     }
@@ -126,6 +135,8 @@ public class SyntaxManager {
             throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
         String[] components = firstDivision[1].split(" ", 2);
         String interfaceName = components[0].trim();
+        if (isPrivate && interfaceName.charAt(interfaceName.length() - 1) != '_')
+            interfaceName += '_';
         String[] interfaces = null;
         if (components.length > 1) {
             components = components[1].split(" ", 2);
@@ -168,6 +179,8 @@ public class SyntaxManager {
         String[] components = firstDivision[1].split("\\(", 2);
 
         String functionName = components[0].trim();
+        if (isPrivate && functionName.charAt(functionName.length() - 1) != '_')
+            functionName += '_';
         ArrayList<String> paramNames = new ArrayList<String>();
         ArrayList<String> paramTypes = new ArrayList<String>();
         if (components.length == 1)
@@ -224,7 +237,7 @@ public class SyntaxManager {
             if (i < len - 1)
                 result.append(", ");
         }
-        result.append(") {}\n");
+        result.append(") {};\n");
         return new SyntaxManagerResult(null, result.toString());
     }
 
@@ -233,6 +246,8 @@ public class SyntaxManager {
             throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
         String[] components = firstDivision[1].split(":", 2);
         String propName = components[0].trim();
+        if (isPrivate && propName.charAt(propName.length() - 1) != '_')
+            propName += '_';
         String propType = (components.length > 1) ? components[1].trim() : "*";
         StringBuilder result = new StringBuilder();
         result.append("/**\n");
@@ -250,7 +265,7 @@ public class SyntaxManager {
         else
             result.append(".prototype.");
         result.append(propName);
-        result.append(" = null\n");
+        result.append(" = null;\n");
         return new SyntaxManagerResult(null, result.toString());
     }
 

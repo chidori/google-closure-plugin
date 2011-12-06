@@ -1,9 +1,15 @@
 <idea-plugin version="2">
-  <name>Plugin name here</name>
-  <description>short description of the plugin</description>
+  <name>Google Closure Support Plugin</name>
+  <description>Plugin for Google Closure JavaScript Development</description>
   <version>1.0</version>
-  <vendor>YourCompany</vendor>
+  <vendor email="ask@chidori.ru">AnyChart</vendor>
   <idea-version since-build="8000"/>
+
+  <depends>com.intellij.modules.platform</depends>
+  <depends>com.intellij.modules.lang</depends>
+  <depends>com.intellij.modules.vcs</depends>
+  <depends>com.intellij.modules.xml</depends>
+  <depends>com.intellij.modules.xdebugger</depends>
 
   <application-components>
     <!-- Add your application components here -->
