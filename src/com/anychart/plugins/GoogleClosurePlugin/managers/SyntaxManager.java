@@ -25,73 +25,97 @@ public class SyntaxManager {
         inputString = inputString.trim();
         String[] firstDivision = inputString.split(" ", 2);
         firstDivision[0] = firstDivision[0].trim();
-        isPrivate = firstDivision[0].equalsIgnoreCase("private");
-        isProtected = firstDivision[0].equalsIgnoreCase("protected");
+        isPrivate = firstDivision[0].equalsIgnoreCase("private") || firstDivision[0].equalsIgnoreCase("p");
+        isProtected = firstDivision[0].equalsIgnoreCase("protected") || firstDivision[0].equalsIgnoreCase("prot");
         if (isPrivate || isProtected || firstDivision[0].equalsIgnoreCase("public")) {
             if (firstDivision.length == 1)
-                throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
+                return null;
+                //throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
             firstDivision = firstDivision[1].split(" ", 2);
             firstDivision[0] = firstDivision[0].trim();
         }
-        isStatic = firstDivision[0].equalsIgnoreCase("static");
+        isStatic = firstDivision[0].equalsIgnoreCase("static") || firstDivision[0].equalsIgnoreCase("s");
         if (isStatic) {
             if (firstDivision.length == 1)
-                throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
+                return null;
+                //throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
             firstDivision = firstDivision[1].split(" ", 2);
             firstDivision[0] = firstDivision[0].trim();
         }
-        if (firstDivision[0].equalsIgnoreCase("class")) {
+        if (firstDivision[0].equalsIgnoreCase("class") || firstDivision[0].equalsIgnoreCase("c")) {
             return parseClass(firstDivision, editor);
-        } else if (firstDivision[0].equalsIgnoreCase("interface")) {
+        } else if (firstDivision[0].equalsIgnoreCase("interface") || firstDivision[0].equalsIgnoreCase("i")) {
             return parseInterface(firstDivision, editor);
-        } else if (firstDivision[0].equalsIgnoreCase("function")) {
+        } else if (firstDivision[0].equalsIgnoreCase("function") || firstDivision[0].equalsIgnoreCase("f")) {
             return parseFunction(firstDivision, editor);
-        } else if (firstDivision[0].equalsIgnoreCase("var")) {
+        } else if (firstDivision[0].equalsIgnoreCase("var") || firstDivision[0].equalsIgnoreCase("v")) {
             return parseProp(firstDivision, editor);
         } else
-            throw new Exception("Bad input string: expected class, interface, function or variable definition");
+            return null;
+            //throw new Exception("Bad input string: expected class, interface, function or variable definition");
     }
 
     private SyntaxManagerResult parseClass(String[] firstDivision, Editor editor) throws Exception {
         if (firstDivision.length == 1)
-            throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
-        String[] components = firstDivision[1].split(" ", 2);
-        String className = components[0].trim();
-        if (isPrivate && className.charAt(className.length() - 1) != '_')
-            className += '_';
+            return null;
+            //throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
+        String className;
         String ancestor = null;
         String[] interfaces = null;
-        if (components.length > 1) {
-            components = components[1].split(" ", 2);
-            components[0] = components[0].trim();
-            if (components[0].equalsIgnoreCase("extends")) {
-                if (components.length == 1)
-                    throw new Exception(
-                            "Bad input string: class extension needs ancestor name");
+        
+        String[] fastVariant = firstDivision[1].split(":", 3);
+        if (fastVariant.length > 1){
+            className = fastVariant[0].trim();
+
+            
+            if (fastVariant[1].length() > 0)
+                ancestor = fastVariant[1].trim();
+
+            if (fastVariant.length == 3)
+                interfaces = fastVariant[2].split(",");
+        } else {
+            String[] components = firstDivision[1].split(" ", 2);
+            className = components[0].trim();
+            
+            if (components.length > 1) {
                 components = components[1].split(" ", 2);
-                ancestor = components[0].trim();
-                if (components.length > 1)
+                components[0] = components[0].trim();
+                if ((components[0].equalsIgnoreCase("extends") || components[0].equalsIgnoreCase("e")) && 
+                        components.length > 1) {
+                        //throw new Exception("Bad input string: class extension needs ancestor name");
                     components = components[1].split(" ", 2);
-                else
-                    components = null;
+                    ancestor = components[0].trim();
+                    if (components.length > 1)
+                        components = components[1].split(" ", 2);
+                    else
+                        components = null;
+                }
+                if (components != null && components.length > 1 && 
+                        (components[0].equalsIgnoreCase("implements") || components[0].equalsIgnoreCase("i"))) {
+                    //if (components.length == 1)
+                        //throw new Exception("Bad input string: class interface implementation needs interface name");
+                    interfaces = components[1].split(",");
+                    //components = null;
+                }
+                /*if (components != null)
+                    return new SyntaxManagerResult(this.inputStringBackup);*/
+                    /*if (ancestor != null)
+                        throw new Exception("Bad input string: expected class extending or interface implementation");
+                    else
+                        throw new Exception("Bad input string: expected class interface implementation");*/
             }
-            if (components != null && components[0].equalsIgnoreCase("implements")) {
-                if (components.length == 1)
-                    throw new Exception(
-                            "Bad input string: class interface implementation needs interface name");
-                interfaces = components[1].split(",");
-                components = null;
-            }
-            if (components != null)
-                if (ancestor != null)
-                    throw new Exception("Bad input string: expected class extending or interface implementation");
-                else
-                    throw new Exception("Bad input string: expected class interface implementation");
         }
+
+        if (className.charAt(className.length() - 1) != '_') {
+            if (isPrivate) className += '_';
+        } else {
+            if (!isPrivate) isPrivate = true;
+        }
+        
         ArrayList<String> requires = new ArrayList<String>();
         StringBuilder result = new StringBuilder();
         result.append("/**\n");
-        result.append(" * TODO: write docs.\n");
+        result.append(" * ND: Needs doc!\n");
         result.append(" * @constructor\n");
         if (isPrivate)
             result.append(" * @private\n");
@@ -104,9 +128,9 @@ public class SyntaxManager {
         if (interfaces != null)
             for (String anInterface : interfaces) {
                 result.append(" * @implements {");
-                result.append(anInterface);
+                result.append(anInterface.trim());
                 result.append("}\n");
-                requires.add(getClassNameSpace(anInterface));
+                requires.add(getClassNameSpace(anInterface.trim()));
             }
         result.append(" */\n");
         String namespace = contentManager.getNamespace(editor);
@@ -132,82 +156,111 @@ public class SyntaxManager {
 
     private SyntaxManagerResult parseInterface(String[] firstDivision, Editor editor) throws Exception {
         if (firstDivision.length == 1)
-            throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
-        String[] components = firstDivision[1].split(" ", 2);
-        String interfaceName = components[0].trim();
-        if (isPrivate && interfaceName.charAt(interfaceName.length() - 1) != '_')
-            interfaceName += '_';
+            return null;
+//            throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
+
+        String interfaceName;
         String[] interfaces = null;
-        if (components.length > 1) {
-            components = components[1].split(" ", 2);
-            components[0] = components[0].trim();
-            if (components[0].equalsIgnoreCase("implements")) {
-                if (components.length == 1)
-                    throw new Exception(
-                            "Bad input string: interface extension needs interface name");
-                interfaces = components[1].split(",");
-                components = null;
+
+        String[] fastVariant = firstDivision[1].split(":", 2);
+
+        if (fastVariant.length == 2){
+            interfaceName = fastVariant[0].trim();
+            interfaces = fastVariant[1].split(",");
+        } else {
+            String[] components = firstDivision[1].split(" ", 2);
+            interfaceName = components[0].trim();
+
+            if (components.length > 1) {
+                components = components[1].split(" ", 2);
+                components[0] = components[0].trim();
+                if ((components[0].equalsIgnoreCase("extends") || components[0].equalsIgnoreCase("e")) &&
+                        components.length > 1) {
+                    interfaces = components[1].split(",");
+                    //components = null;
+                }
+                /*if (components != null)
+                    throw new Exception("Bad input string: expected interface extension");*/
             }
-            if (components != null)
-                throw new Exception("Bad input string: expected interface extension");
         }
+        if (interfaceName.charAt(interfaceName.length() - 1) != '_') {
+            if (isPrivate) interfaceName += '_';
+        } else {
+            if (!isPrivate) isPrivate = true;
+        }
+
         ArrayList<String> requires = new ArrayList<String>();
         StringBuilder result = new StringBuilder();
         result.append("/**\n");
-        result.append(" * TODO: write docs.\n");
+        result.append(" * ND: Needs doc!\n");
         result.append(" * @interface\n");
         if (isPrivate)
             result.append(" * @private\n");
         if (interfaces != null)
             for (String anInterface : interfaces) {
                 result.append(" * @extends {");
-                result.append(anInterface);
+                result.append(anInterface.trim());
                 result.append("}\n");
-                requires.add(getClassNameSpace(anInterface));
+                requires.add(getClassNameSpace(anInterface.trim()));
             }
         result.append(" */");
         result.append(contentManager.getNamespace(editor));
         result.append(".");
         result.append(interfaceName);
-        result.append(" = function() {}\n");
+        result.append(" = function() {};\n");
         return new SyntaxManagerResult(requires.toArray(), result.toString());
     }
 
     private SyntaxManagerResult parseFunction(String[] firstDivision, Editor editor) throws Exception {
         if (firstDivision.length == 1)
-            throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
+            return null;
+            //throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
         String[] components = firstDivision[1].split("\\(", 2);
+        StringBuilder result;
 
         String functionName = components[0].trim();
-        if (isPrivate && functionName.charAt(functionName.length() - 1) != '_')
-            functionName += '_';
+        if (functionName.charAt(functionName.length() - 1) != '_') {
+            if (isPrivate) functionName += '_';
+        } else {
+            if (!isPrivate) isPrivate = true;
+        }
+
         ArrayList<String> paramNames = new ArrayList<String>();
         ArrayList<String> paramTypes = new ArrayList<String>();
-        if (components.length == 1)
-            throw new Exception("Bad input string: parentheses expected");
+        String functionType = "void";
+        Boolean endingTypeDenoter = false;
 
-        components = components[1].split(",");
-        for (int i = 0; i < components.length - 1; i++) {
-            String[] tmp = components[i].split(":", 2);
-            paramNames.add(tmp[0].trim());
-            paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
-        }
-        components = components[components.length - 1].split("\\)", 2);
-        if (components[0].trim().length() > 0) {
-            String[] tmp = components[0].split(":", 2);
-            paramNames.add(tmp[0].trim());
-            paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
-        }
-        if (components.length == 1)
-            throw new Exception("Bad input string: unterminated parentheses");
-        components = components[1].split(":", 2);
-        if (components[0].trim().length() != 0)
-            throw new Exception("Bad input string: unexpected symbols after \")\"");
-        String functionType = (components.length > 1) ? components[1].trim() : "void";
+        if (components.length > 1) {
+            components = components[1].split(",");
+            for (int i = 0; i < components.length - 1; i++) {
+                String[] tmp = components[i].split(":", 2);
+                paramNames.add(tmp[0].trim());
+                paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
+            }
 
-        StringBuilder result = new StringBuilder();
+            components = components[components.length - 1].split("\\)", 2);
+            if (components[0].trim().length() > 0) {
+                String[] tmp = components[0].split(":", 2);
+                paramNames.add(tmp[0].trim());
+                paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
+            }
+
+            if (components.length > 1){
+                components = components[1].split(":", 2);
+
+                if (components.length > 1)
+                    functionType = components[1].trim();
+
+                Character tmp = functionType.charAt(functionType.length() - 1);
+                endingTypeDenoter = tmp == '{';
+                if (tmp == ';' || tmp == '{')
+                    functionType = functionType.substring(0, functionType.length() - 1).trim();
+            }
+        }
+
+        result = new StringBuilder();
         result.append("/**\n");
-        result.append(" * TODO: write docs.\n");
+        result.append(" * ND: Needs doc!\n");
         if (isPrivate)
             result.append(" * @private\n");
         else if (isProtected)
@@ -217,7 +270,7 @@ public class SyntaxManager {
             result.append(paramTypes.get(i));
             result.append("} ");
             result.append(paramNames.get(i));
-            result.append(" TODO: param docs.\n");
+            result.append(" ND: Needs doc!\n");
         }
         if (!functionType.equalsIgnoreCase("void")) {
             result.append(" * @return {");
@@ -225,11 +278,17 @@ public class SyntaxManager {
             result.append("}\n");
         }
         result.append(" */\n");
-        result.append(contentManager.getClassName(editor));
-        if (isStatic)
+
+        if (isStatic) {
+            String tmp = contentManager.getClassName(editor);
+            if (tmp == null)
+                tmp = contentManager.getNamespace(editor);
+            result.append(tmp);
             result.append(".");
-        else
+        } else {
+            result.append(contentManager.getClassName(editor));
             result.append(".prototype.");
+        }
         result.append(functionName);
         result.append(" = function(");
         for (int i = 0, len = paramNames.size(); i < len; i++) {
@@ -237,21 +296,31 @@ public class SyntaxManager {
             if (i < len - 1)
                 result.append(", ");
         }
-        result.append(") {};\n");
+        result.append(")");
+        if (endingTypeDenoter)
+            result.append(" {");
+        else
+            result.append(" {};\n");
         return new SyntaxManagerResult(null, result.toString());
     }
 
     private SyntaxManagerResult parseProp(String[] firstDivision, Editor editor) throws Exception {
         if (firstDivision.length == 1)
-            throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
+            return null;
+            //throw new Exception("Bad input string: expected something more than just \"" + firstDivision[0] + "\"");
         String[] components = firstDivision[1].split(":", 2);
         String propName = components[0].trim();
-        if (isPrivate && propName.charAt(propName.length() - 1) != '_')
-            propName += '_';
+        if (propName.charAt(propName.length() - 1) != '_') {
+            if (isPrivate) propName += '_';
+        } else {
+            if (!isPrivate) isPrivate = true;
+        }
         String propType = (components.length > 1) ? components[1].trim() : "*";
+        if (propType.charAt(propType.length() - 1) == ';')
+            propType = propType.substring(0, propType.length() - 1).trim();
         StringBuilder result = new StringBuilder();
         result.append("/**\n");
-        result.append(" * TODO: write docs.\n");
+        result.append(" * ND: Needs doc!\n");
         if (isPrivate)
             result.append(" * @private\n");
         else if (isProtected)
@@ -259,11 +328,17 @@ public class SyntaxManager {
         result.append(" * @type {");
         result.append(propType);
         result.append("}\n */\n");
-        result.append(contentManager.getClassName(editor));
-        if (isStatic)
+        
+        if (isStatic) {
+            String tmp = contentManager.getClassName(editor);
+            if (tmp == null)
+                tmp = contentManager.getNamespace(editor);
+            result.append(tmp);
             result.append(".");
-        else
+        } else {
+            result.append(contentManager.getClassName(editor));
             result.append(".prototype.");
+        }
         result.append(propName);
         result.append(" = null;\n");
         return new SyntaxManagerResult(null, result.toString());

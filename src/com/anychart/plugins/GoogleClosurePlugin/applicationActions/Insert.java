@@ -64,7 +64,8 @@ public class Insert extends AnAction {
                     System.out.println(myString);
                     try {
                         SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
-                        contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+                        if (parsedString != null)
+                            contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -89,7 +90,8 @@ public class Insert extends AnAction {
             System.out.println(myString);
             try {
                 SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
-                contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+                if (parsedString != null)
+                    contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }

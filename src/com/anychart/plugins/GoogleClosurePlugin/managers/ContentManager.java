@@ -59,7 +59,7 @@ public class ContentManager {
 
         int offset = editor.getCaretModel().getOffset();
         int lineNumber = editor.getDocument().getLineNumber(offset);
-        Pattern p = Pattern.compile("^((([a-z][a-zA-Z_0-9]+)\\.)+[A-Z][a-zA-Z_0-9]+)[ ]*=[ ]*function");
+        Pattern p = Pattern.compile("^((([a-z][a-zA-Z_0-9]*)\\.)+[A-Z][a-zA-Z_0-9]*)[ ]*=[ ]*function");
 
         while (lineNumber != -1) {
             int lineStartOffset = editor.getDocument().getLineStartOffset(lineNumber);

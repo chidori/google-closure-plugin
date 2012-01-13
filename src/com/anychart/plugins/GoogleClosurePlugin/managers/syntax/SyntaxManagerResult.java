@@ -12,9 +12,6 @@ import java.util.List;
  * Time: 1:40
  */
 public class SyntaxManagerResult {
-    public SyntaxManagerResult() {
-    }
-
     public SyntaxManagerResult(String[] requires, String replaceString) {
         this.requires = requires;
         this.replaceString = replaceString;
