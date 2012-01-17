@@ -21,9 +21,4 @@ public class GoogContextType extends TemplateContextType {
         return true;
     }
 
-    @Override
-    public boolean isInContext(@NotNull FileType fileType) {
-        return true;
-    }
-
 }
