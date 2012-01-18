@@ -27,7 +27,8 @@ public class SyntaxManager {
         firstDivision[0] = firstDivision[0].trim();
         isPrivate = firstDivision[0].equalsIgnoreCase("private") || firstDivision[0].equalsIgnoreCase("p");
         isProtected = firstDivision[0].equalsIgnoreCase("protected") || firstDivision[0].equalsIgnoreCase("prot");
-        if (isPrivate || isProtected || firstDivision[0].equalsIgnoreCase("public")) {
+        if (isPrivate || isProtected || firstDivision[0].equalsIgnoreCase("public") ||
+                firstDivision[0].equalsIgnoreCase("internal")) {
             if (firstDivision.length == 1)
                 return null;
                 //throw new Exception("Bad input string: expected something more than just \"" + inputString + "\"");
@@ -63,7 +64,9 @@ public class SyntaxManager {
         String ancestor = null;
         String[] interfaces = null;
         
-        String[] fastVariant = firstDivision[1].split(":", 3);
+        String[] args = firstDivision[1].split("\\(", 2);
+        
+        String[] fastVariant = args[0].split(":", 3);
         if (fastVariant.length > 1){
             className = fastVariant[0].trim();
 
@@ -74,7 +77,7 @@ public class SyntaxManager {
             if (fastVariant.length == 3)
                 interfaces = fastVariant[2].split(",");
         } else {
-            String[] components = firstDivision[1].split(" ", 2);
+            String[] components = args[0].split(" ", 2);
             className = components[0].trim();
             
             if (components.length > 1) {
@@ -106,6 +109,56 @@ public class SyntaxManager {
             }
         }
 
+        ArrayList<String> paramNames = new ArrayList<String>();
+        ArrayList<String> paramTypes = new ArrayList<String>();
+        ArrayList<String> paramDefs = new ArrayList<String>();
+
+        if (args.length > 1) {
+            args = args[1].split(",");
+            for (int i = 0; i < args.length - 1; i++) {
+                String[] tmp = args[i].split(":", 2);
+                String paramName = tmp[0].trim();
+                if (tmp.length > 1){
+                    String[] paramTypeComponents = tmp[1].trim().split("=", 2);
+                    String paramT = paramTypeComponents[0].trim();
+                    Boolean optParam = paramName.startsWith("opt_");
+                    Boolean optParamType = paramT.endsWith("=");
+                    if (optParam && !optParamType)
+                        paramT += "=";
+                    else if (optParamType && !optParam)
+                        paramName = "opt_" + paramName;
+                    paramTypes.add(paramT);
+                    paramDefs.add((paramTypeComponents.length > 1) ? paramTypeComponents[1].trim() : null);
+                } else  {
+                    paramTypes.add("*");
+                    paramDefs.add(null);
+                }
+                paramNames.add(paramName);
+            }
+
+            args = args[args.length - 1].split("\\)", 2);
+            if (args[0].trim().length() > 0) {
+                String[] tmp = args[0].split(":", 2);
+                String paramName = tmp[0].trim();
+                if (tmp.length > 1){
+                    String[] paramTypeComponents = tmp[1].trim().split("=", 2);
+                    String paramT = paramTypeComponents[0].trim();
+                    Boolean optParam = paramName.startsWith("opt_");
+                    Boolean optParamType = paramT.endsWith("=");
+                    if (optParam && !optParamType)
+                        paramT += "=";
+                    else if (optParamType && !optParam)
+                        paramName = "opt_" + paramName;
+                    paramTypes.add(paramT);
+                    paramDefs.add((paramTypeComponents.length > 1) ? paramTypeComponents[1].trim() : null);
+                } else  {
+                    paramTypes.add("*");
+                    paramDefs.add(null);
+                }
+                paramNames.add(paramName);
+            }
+        }
+
         if (className.charAt(className.length() - 1) != '_') {
             if (isPrivate) className += '_';
         } else {
@@ -132,15 +185,39 @@ public class SyntaxManager {
                 result.append("}\n");
                 requires.add(getClassNameSpace(anInterface.trim()));
             }
+        result.append(" * \n");
+        for (int i = 0, len = paramNames.size(); i < len; i++) {
+            result.append(" * @param {");
+            result.append(paramTypes.get(i));
+            result.append("} ");
+            result.append(paramNames.get(i));
+            if (paramDefs.get(i) != null) {
+                result.append(" Default: ");
+                result.append(paramDefs.get(i));
+            }
+            result.append("\n");
+        }
         result.append(" */\n");
         String namespace = contentManager.getNamespace(editor);
         result.append(namespace);
         result.append(".");
         result.append(className);
         if (ancestor != null) {
-            result.append(" = function() {\n\t");
-            result.append(ancestor);
-            result.append(".call(this);\n};\n");
+            result.append(" = function(");
+            if (paramNames.size() > 0)
+                result.append(paramNames.get(0));
+            for (int i = 1, len = paramNames.size(); i < len; i++) {
+                result.append(", ");
+                result.append(paramNames.get(i));
+            }
+            result.append(") {\n    goog.base(this");
+
+            for (int i = 0, len = paramNames.size(); i < len; i++) {
+                result.append(", ");
+                result.append(paramNames.get(i));
+            }
+            
+            result.append(");\n};\n");
             result.append("goog.inherits(");
             result.append(namespace);
             result.append(".");
@@ -227,6 +304,7 @@ public class SyntaxManager {
 
         ArrayList<String> paramNames = new ArrayList<String>();
         ArrayList<String> paramTypes = new ArrayList<String>();
+        ArrayList<String> paramDefs = new ArrayList<String>();
         String functionType = "void";
         Boolean endingTypeDenoter = false;
 
@@ -234,15 +312,45 @@ public class SyntaxManager {
             components = components[1].split(",");
             for (int i = 0; i < components.length - 1; i++) {
                 String[] tmp = components[i].split(":", 2);
-                paramNames.add(tmp[0].trim());
-                paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
+                String paramName = tmp[0].trim();
+                if (tmp.length > 1){
+                    String[] paramTypeComponents = tmp[1].trim().split("=", 2);
+                    String paramT = paramTypeComponents[0].trim();
+                    Boolean optParam = paramName.startsWith("opt_");
+                    Boolean optParamType = paramT.endsWith("=");
+                    if (optParam && !optParamType)
+                        paramT += "=";
+                    else if (optParamType && !optParam)
+                        paramName = "opt_" + paramName;
+                    paramTypes.add(paramT);
+                    paramDefs.add((paramTypeComponents.length > 1) ? paramTypeComponents[1].trim() : null);
+                } else  {
+                    paramTypes.add("*");
+                    paramDefs.add(null);
+                }
+                paramNames.add(paramName);
             }
 
             components = components[components.length - 1].split("\\)", 2);
             if (components[0].trim().length() > 0) {
                 String[] tmp = components[0].split(":", 2);
-                paramNames.add(tmp[0].trim());
-                paramTypes.add((tmp.length > 1) ? tmp[1].trim() : "*");
+                String paramName = tmp[0].trim();
+                if (tmp.length > 1){
+                    String[] paramTypeComponents = tmp[1].trim().split("=", 2);
+                    String paramT = paramTypeComponents[0].trim();
+                    Boolean optParam = paramName.startsWith("opt_");
+                    Boolean optParamType = paramT.endsWith("=");
+                    if (optParam && !optParamType)
+                        paramT += "=";
+                    else if (optParamType && !optParam)
+                        paramName = "opt_" + paramName;
+                    paramTypes.add(paramT);
+                    paramDefs.add((paramTypeComponents.length > 1) ? paramTypeComponents[1].trim() : null);
+                } else  {
+                    paramTypes.add("*");
+                    paramDefs.add(null);
+                }
+                paramNames.add(paramName);
             }
 
             if (components.length > 1){
@@ -270,7 +378,11 @@ public class SyntaxManager {
             result.append(paramTypes.get(i));
             result.append("} ");
             result.append(paramNames.get(i));
-            result.append(" ND: Needs doc!\n");
+            if (paramDefs.get(i) != null) {
+                result.append(" Default: ");
+                result.append(paramDefs.get(i));
+            }
+            result.append("\n");
         }
         if (!functionType.equalsIgnoreCase("void")) {
             result.append(" * @return {");
