@@ -202,14 +202,14 @@ public class SyntaxManager {
         result.append(namespace);
         result.append(".");
         result.append(className);
+        result.append(" = function(");
+        if (paramNames.size() > 0)
+            result.append(paramNames.get(0));
+        for (int i = 1, len = paramNames.size(); i < len; i++) {
+            result.append(", ");
+            result.append(paramNames.get(i));
+        }
         if (ancestor != null) {
-            result.append(" = function(");
-            if (paramNames.size() > 0)
-                result.append(paramNames.get(0));
-            for (int i = 1, len = paramNames.size(); i < len; i++) {
-                result.append(", ");
-                result.append(paramNames.get(i));
-            }
             result.append(") {\n    goog.base(this");
 
             for (int i = 0, len = paramNames.size(); i < len; i++) {
@@ -226,7 +226,7 @@ public class SyntaxManager {
             result.append(ancestor);
             result.append(");\n");
         } else {
-            result.append(" = function() {};");
+            result.append(") {};");
         }
         return new SyntaxManagerResult(requires.toArray(), result.toString());
     }
