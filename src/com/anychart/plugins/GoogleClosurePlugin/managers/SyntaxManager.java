@@ -212,9 +212,9 @@ public class SyntaxManager {
         if (ancestor != null) {
             result.append(") {\n    goog.base(this");
 
-            for (int i = 0, len = paramNames.size(); i < len; i++) {
+            for (String paramName : paramNames) {
                 result.append(", ");
-                result.append(paramNames.get(i));
+                result.append(paramName);
             }
             
             result.append(");\n};\n");
@@ -421,9 +421,9 @@ public class SyntaxManager {
                 result.append("\n    goog.base(this, '");
                 result.append(functionName);
                 result.append("'");
-                for (int i = 0, len = paramNames.size(); i < len; i++) {
+                for (String paramName : paramNames) {
                     result.append(", ");
-                    result.append(paramNames.get(i));
+                    result.append(paramName);
                 }
                 result.append(");\n};\n");
             } else
