@@ -296,6 +296,9 @@ public class SyntaxManager {
         StringBuilder result;
 
         String functionName = components[0].trim();
+        Boolean override = functionName.startsWith("@");
+        if (override)
+            functionName = functionName.substring(1);
         if (functionName.charAt(functionName.length() - 1) != '_') {
             if (isPrivate) functionName += '_';
         } else {
@@ -367,29 +370,33 @@ public class SyntaxManager {
         }
 
         result = new StringBuilder();
-        result.append("/**\n");
-        result.append(" * ND: Needs doc!\n");
-        if (isPrivate)
-            result.append(" * @private\n");
-        else if (isProtected)
-            result.append(" * @protected\n");
-        for (int i = 0, len = paramNames.size(); i < len; i++) {
-            result.append(" * @param {");
-            result.append(paramTypes.get(i));
-            result.append("} ");
-            result.append(paramNames.get(i));
-            if (paramDefs.get(i) != null) {
-                result.append(" Default: ");
-                result.append(paramDefs.get(i));
+        if (override)
+            result.append("/** @inheritDoc */\n");
+        else {
+            result.append("/**\n");
+            result.append(" * ND: Needs doc!\n");
+            if (isPrivate)
+                result.append(" * @private\n");
+            else if (isProtected)
+                result.append(" * @protected\n");
+            for (int i = 0, len = paramNames.size(); i < len; i++) {
+                result.append(" * @param {");
+                result.append(paramTypes.get(i));
+                result.append("} ");
+                result.append(paramNames.get(i));
+                if (paramDefs.get(i) != null) {
+                    result.append(" Default: ");
+                    result.append(paramDefs.get(i));
+                }
+                result.append("\n");
             }
-            result.append("\n");
+            if (!functionType.equalsIgnoreCase("void")) {
+                result.append(" * @return {");
+                result.append(functionType);
+                result.append("}\n");
+            }
+            result.append(" */\n");
         }
-        if (!functionType.equalsIgnoreCase("void")) {
-            result.append(" * @return {");
-            result.append(functionType);
-            result.append("}\n");
-        }
-        result.append(" */\n");
 
         if (isStatic) {
             String tmp = contentManager.getClassName(editor);
@@ -408,11 +415,20 @@ public class SyntaxManager {
             if (i < len - 1)
                 result.append(", ");
         }
-        result.append(")");
-        if (endingTypeDenoter)
-            result.append(" {");
-        else
-            result.append(" {};\n");
+        result.append(") {");
+        if (!endingTypeDenoter) {
+            if (override) {
+                result.append("\n    goog.base(this, '");
+                result.append(functionName);
+                result.append("'");
+                for (int i = 0, len = paramNames.size(); i < len; i++) {
+                    result.append(", ");
+                    result.append(paramNames.get(i));
+                }
+                result.append(");\n};\n");
+            } else
+                result.append("};\n");
+        }
         return new SyntaxManagerResult(null, result.toString());
     }
 
