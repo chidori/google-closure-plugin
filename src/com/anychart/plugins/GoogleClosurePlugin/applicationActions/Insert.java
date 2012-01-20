@@ -65,7 +65,7 @@ public class Insert extends AnAction {
                     try {
                         SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
                         if (parsedString != null)
-                            contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+                            contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo, editor.getProject());
                     } catch (Exception e1) {
                         e1.printStackTrace();
                     }
@@ -91,7 +91,7 @@ public class Insert extends AnAction {
             try {
                 SyntaxManagerResult parsedString = syntaxManager.parseInput(myString, editor);
                 if (parsedString != null)
-                    contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo);
+                    contentManager.insertString(editor.getDocument(), parsedString.getReplaceString(), replaceFrom, replaceTo, editor.getProject());
             } catch (Exception e1) {
                 e1.printStackTrace();
             }

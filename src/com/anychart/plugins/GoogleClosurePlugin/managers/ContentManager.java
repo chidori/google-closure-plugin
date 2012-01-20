@@ -1,9 +1,13 @@
 package com.anychart.plugins.GoogleClosurePlugin.managers;
 
+import com.anychart.plugins.GoogleClosurePlugin.helpers.RunnableHelper;
+import com.intellij.openapi.actionSystem.DataKeys;
+import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorGutter;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 
@@ -82,8 +86,12 @@ public class ContentManager {
         // to be "prototype." string.
     }
 
-    public void insertString(Document doc, String text, int from, int to) {
-        doc.replaceString(from, to, text);
+    public void insertString(final Document doc, final String text, final int from, final int to, Project project) {
+        RunnableHelper.runWriteCommand(project, new Runnable() {
+            public void run() {
+                doc.replaceString(from, to, text);
+            }
+        });
     }
 
 }

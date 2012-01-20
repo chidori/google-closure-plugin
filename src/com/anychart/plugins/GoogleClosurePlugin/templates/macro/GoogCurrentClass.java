@@ -10,9 +10,13 @@ import org.jetbrains.annotations.NotNull;
  * Date: 04.12.11
  * Time: 7:02
  */
-public class GoogCurrentClass extends Macro {
+public class GoogCurrentClass implements Macro {
     public String getName() {
         return "googCurrentClass";
+    }
+
+    public String getDescription() {
+        return "googCurrentClass()";
     }
 
     public java.lang.String getPresentableName() {
