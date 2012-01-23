@@ -1,5 +1,6 @@
 package com.anychart.plugins.GoogleClosurePlugin.managers;
 
+import com.anychart.plugins.GoogleClosurePlugin.commands.InsertCommand;
 import com.anychart.plugins.GoogleClosurePlugin.helpers.RunnableHelper;
 import com.intellij.openapi.actionSystem.DataKeys;
 import com.intellij.openapi.actionSystem.PlatformDataKeys;
@@ -87,11 +88,8 @@ public class ContentManager {
     }
 
     public void insertString(final Document doc, final String text, final int from, final int to, Project project) {
-        RunnableHelper.runWriteCommand(project, new Runnable() {
-            public void run() {
-                doc.replaceString(from, to, text);
-            }
-        });
+        InsertCommand insertCommand = new InsertCommand(doc, from, to , text);
+        RunnableHelper.runWriteCommand(project, insertCommand);
     }
 
 }

@@ -2,7 +2,7 @@
   <name>Google Closure Support Plugin</name>
   <description>Plugin for Google Closure JavaScript Development</description>
   <version>1.0</version>
-  <vendor email="ask@chidori.ru">AnyChart</vendor>
+  <vendor email="opensource@anychart.com">AnyChart</vendor>
   <idea-version since-build="8000"/>
 
   <depends>com.intellij.modules.platform</depends>

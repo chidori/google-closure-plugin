@@ -35,7 +35,7 @@ public class GoogCurrentNamespace implements Macro {
     }
 
     public Result calculateQuickResult(@NotNull Expression[] params, ExpressionContext context) {
-        return null;
+        return calculateResult(params, context);
     }
 
     public LookupElement[] calculateLookupItems(@NotNull Expression[] params, ExpressionContext context) {
